@@ -15,6 +15,10 @@ class Block {
 		shape.layer = this.layer;
 	}
 
+	getShapes() {
+			return this.shapes;
+	}
+
 	toDxfString() {
 		let s = '0\nBLOCK\n';
 		s += `5\n${this.handle}\n`

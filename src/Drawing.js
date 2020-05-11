@@ -17,6 +17,8 @@ class Drawing
     {
         this.layers = {};
         this.activeLayer = null;
+        this.previousLayer = null;
+        this.drawingOnBlock = false;
         this.lineTypes = {};
         this.headers = {};
         this.blocks = [];
@@ -70,8 +72,22 @@ class Drawing
         return this;
     }
     
+    drawOnBlock(block, drawFn) {
+        this.drawingOnBlock = true;
+        this.previousLayer = this.activeLayer;
+        this.activeLayer = block;
+        drawFn(this);
+        this.activeLayer = this.previousLayer;
+        this.drawingOnBlock = false;
+        return this;
+    }
+
+
     setActiveLayer(name)
     {
+        if(this.drawingOnBlock) {
+            throw new Exception("Cannot switch layers while drawing on block.");
+        }
         this.activeLayer = this.layers[name];
         return this;
     }
