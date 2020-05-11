@@ -8,6 +8,8 @@ const Polyline = require('./Polyline');
 const Polyline3d = require('./Polyline3d');
 const Face = require('./Face');
 const Point = require('./Point');
+const { Block } = require('./Block');
+const { BlockRef } = require('./BlockRef');
 
 class Drawing
 {
@@ -17,6 +19,7 @@ class Drawing
         this.activeLayer = null;
         this.lineTypes = {};
         this.headers = {};
+        this.blocks = [];
 
         this.setUnits('Unitless');
 
@@ -52,6 +55,18 @@ class Drawing
     addLayer(name, colorNumber, lineTypeName)
     {
         this.layers[name] = new Layer(name, colorNumber, lineTypeName);
+        return this;
+    }
+
+    addBlock(layerName, name, handle, x, y, z) {
+        const block = new Block(this.layers[layerName], name, handle, x, y, z);
+        this.blocks.push(block);
+        return block;
+    }
+
+    addBlockRef(block, handle, x, y, z, options) {
+        const blockRef = new BlockRef(block, handle, x, y, z, options);
+        this.activeLayer.addShape(blockRef);
         return this;
     }
     
@@ -264,6 +279,18 @@ class Drawing
         //end section
         s += '0\nENDSEC\n';
 
+        //BLOCKS section
+        //start section
+        s += '0\nSECTION\n';
+        //name section as BLOCKS section
+        s += '2\nBLOCKS\n';
+
+        for(const block of this.blocks) {
+            s += block.toDxfString();
+        }
+        //s += D2;
+        //end section
+        s += '0\nENDSEC\n';
 
         //ENTITES section
         s += '0\nSECTION\n';
